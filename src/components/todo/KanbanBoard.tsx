@@ -13,11 +13,14 @@ import {
   Circle,
   Flag,
   Tag,
-  GripVertical
+  GripVertical,
+  Palette
 } from 'lucide-react';
 import { Todo, TodoStatus } from '@/types';
 import { formatDate, getPriorityColor, isOverdue, getDaysUntilDue } from '@/lib/utils';
 import { useTodoStore } from '@/store';
+import EditTodoDialog from './EditTodoDialog';
+import TodoCanvasEditor from '@/components/canvas/TodoCanvasEditor';
 import toast from 'react-hot-toast';
 
 interface KanbanBoardProps {
@@ -90,7 +93,7 @@ export default function KanbanBoard({ todos, onUpdateTodo, onDeleteTodo }: Kanba
   };
 
   const handleDelete = async (todoId: string) => {
-    if (confirm('Are you sure you want to delete this task?')) {
+    if (confirm('Are you sure you want to delete this task? This will also delete any attached drawings.')) {
       try {
         await onDeleteTodo(todoId);
         deleteTodo(todoId);
@@ -152,6 +155,8 @@ export default function KanbanBoard({ todos, onUpdateTodo, onDeleteTodo }: Kanba
                       </h4>
                     </div>
                     <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                      <TodoCanvasEditor todoId={todo._id!} />
+                      <EditTodoDialog todo={todo} onUpdate={onUpdateTodo} />
                       <Button
                         size="sm"
                         variant="ghost"
@@ -200,6 +205,12 @@ export default function KanbanBoard({ todos, onUpdateTodo, onDeleteTodo }: Kanba
                       {todo.aiGenerated && (
                         <Badge variant="outline" className="text-xs">
                           AI
+                        </Badge>
+                      )}
+
+                      {todo.calendarEventId && (
+                        <Badge variant="outline" className="text-xs text-blue-600">
+                          📅 Synced
                         </Badge>
                       )}
                     </div>

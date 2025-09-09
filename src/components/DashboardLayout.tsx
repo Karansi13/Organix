@@ -23,6 +23,7 @@ import { useUIStore } from '@/store';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -38,6 +39,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
@@ -63,12 +65,9 @@ export default function DashboardLayout({
         'fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-2">
-              <img src="/logo.png" alt="Organix Logo" className="w-5 h-5" />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              Organix
-            </h1>
+        <div className="flex items-center justify-start h-16 pl-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/dashboard')} >
+              <img src="/logo.png" alt="Organix Logo" className="w-[10rem] h-[6rem]" />
           </div>
           <Button
             variant="ghost"

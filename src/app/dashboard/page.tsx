@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import KanbanBoard from '@/components/todo/KanbanBoard';
 import AddTodoDialog from '@/components/todo/AddTodoDialog';
-import CanvasEditor from '@/components/canvas/CanvasEditor';
 import ClientOnly from '@/components/ClientOnly';
 import { 
   BarChart3, 
@@ -163,9 +162,6 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <ClientOnly fallback={<div className="w-24 h-9 bg-gray-200 rounded animate-pulse"></div>}>
-            <CanvasEditor />
-          </ClientOnly>
           <ClientOnly fallback={<div className="w-24 h-9 bg-gray-200 rounded animate-pulse"></div>}>
             <AddTodoDialog onAdd={handleAddTodo} />
           </ClientOnly>

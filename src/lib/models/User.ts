@@ -1,27 +1,51 @@
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-  clerkId: { type: String, required: true, unique: true },
-  email: { type: String, required: true },
-  firstName: { type: String },
-  lastName: { type: String },
-  imageUrl: { type: String },
-  preferences: {
-    theme: { type: String, enum: ['light', 'dark', 'system'], default: 'system' },
-    notifications: { type: Boolean, default: true },
-    googleCalendarSync: { type: Boolean, default: false },
-    aiSuggestions: { type: Boolean, default: true }
+  clerkId: {
+    type: String,
+    required: true,
+    unique: true,
   },
+  email: {
+    type: String,
+    required: true,
+  },
+  firstName: String,
+  lastName: String,
+  imageUrl: String,
   googleTokens: {
-    accessToken: { type: String },
-    refreshToken: { type: String },
-    expiryDate: { type: Date }
-  }
-}, {
-  timestamps: true
+    accessToken: String,
+    refreshToken: String,
+    expiryDate: Date,
+  },
+  preferences: {
+    googleCalendarSync: {
+      type: Boolean,
+      default: false,
+    },
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'system'],
+      default: 'system',
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-UserSchema.index({ clerkId: 1 });
-UserSchema.index({ email: 1 });
+UserSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
 
 export const User = mongoose.models.User || mongoose.model('User', UserSchema);
