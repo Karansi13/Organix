@@ -17,7 +17,7 @@ import { useTodoStore } from '@/store';
 import toast from 'react-hot-toast';
 
 interface AddTodoDialogProps {
-  onAdd: (todo: Partial<Todo>) => void;
+  onAdd: (todo: Todo) => void;
 }
 
 export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {

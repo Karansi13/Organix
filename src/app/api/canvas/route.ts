@@ -13,13 +13,17 @@ export async function GET(req: NextRequest) {
 
     await connectToDatabase();
     
-    const { searchParams } = new URL(req.url);
-    const todoId = searchParams.get('todoId');
+    const url = new URL(req.url);
+    const todoId = url.searchParams.get('todoId');
 
-    let query: any = { userId };
-    if (todoId) query.todoId = todoId;
+    const query: any = { userId };
+    if (todoId) {
+      query.todoId = todoId;
+    }
 
-    const drawings = await CanvasDrawing.find(query).sort({ createdAt: -1 });
+    const drawings = await CanvasDrawing.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json(drawings);
   } catch (error) {
@@ -42,19 +46,26 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     
     const body = await req.json();
-    const { data, name, todoId, preview } = body;
+    const { name, data, preview, todoId } = body;
+
+    if (!name || !data) {
+      return NextResponse.json(
+        { error: 'Name and data are required' }, 
+        { status: 400 }
+      );
+    }
 
     const drawing = new CanvasDrawing({
       userId,
-      todoId,
-      data,
       name,
-      preview
+      data,
+      preview,
+      todoId
     });
 
     await drawing.save();
 
-    return NextResponse.json(drawing, { status: 201 });
+    return NextResponse.json(drawing);
   } catch (error) {
     console.error('Error creating canvas drawing:', error);
     return NextResponse.json(
