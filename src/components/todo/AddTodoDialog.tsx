@@ -39,7 +39,7 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
     setLoading(true);
 
     try {
-      const todoData: Partial<Todo> = useAI 
+      const todoData = useAI 
         ? { naturalLanguage }
         : {
             title,
@@ -47,7 +47,7 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
             priority,
             dueDate,
             tags,
-            status: 'backlog'
+            status: 'backlog' as const
           };
 
       const response = await fetch('/api/todos', {
