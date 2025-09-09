@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Calendar as CalendarIcon, 
-  Sync, 
   CheckCircle2, 
   AlertCircle,
   ExternalLink,
@@ -155,7 +154,7 @@ export default function CalendarPage() {
         <div className="flex items-center gap-3">
           {isConnected && (
             <Button onClick={refreshEvents} variant="outline" className="flex items-center gap-2">
-              <Sync className="h-4 w-4" />
+              {/* <Sync className="h-4 w-4" /> */}
               Refresh
             </Button>
           )}
