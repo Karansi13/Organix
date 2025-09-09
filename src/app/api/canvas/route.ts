@@ -3,6 +3,9 @@ import { getAuth } from '@clerk/nextjs/server';
 import connectToDatabase from '@/lib/mongodb';
 import { CanvasDrawing } from '@/lib/models/CanvasDrawing';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);

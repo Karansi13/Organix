@@ -4,6 +4,9 @@ import connectToDatabase from '@/lib/mongodb';
 import { Todo } from '@/lib/models/Todo';
 import { AIService } from '@/lib/ai';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { userId } = getAuth(req);

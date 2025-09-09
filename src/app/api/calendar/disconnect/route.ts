@@ -3,6 +3,9 @@ import { getAuth } from '@clerk/nextjs/server';
 import connectToDatabase from '@/lib/mongodb';
 import { User } from '@/lib/models/User';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = getAuth(req);

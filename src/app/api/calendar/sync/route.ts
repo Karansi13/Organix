@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuth } from '@clerk/nextjs/server';
 import { google } from 'googleapis';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.NEXT_PUBLIC_APP_URL}/api/calendar/callback`
+  `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/calendar/callback`
 );
 
 export async function POST(req: NextRequest) {

@@ -4,6 +4,9 @@ import connectToDatabase from '@/lib/mongodb';
 import { Todo } from '@/lib/models/Todo';
 import { CanvasDrawing } from '@/lib/models/CanvasDrawing';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
