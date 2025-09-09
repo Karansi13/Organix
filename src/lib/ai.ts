@@ -31,6 +31,19 @@ export class AIService {
 
   static async parseNaturalLanguageTodo(input: string): Promise<Partial<Todo>> {
     try {
+      // Fallback parsing if AI fails
+      const fallbackTodo = {
+        title: input.length > 50 ? input.substring(0, 50) + '...' : input,
+        description: input,
+        priority: 'medium' as const,
+        tags: []
+      };
+
+      if (!process.env.GEMINI_API_KEY) {
+        console.warn('No Gemini API key found, using fallback parsing');
+        return fallbackTodo;
+      }
+
       const model = await this.getWorkingModel();
 
       const prompt = `
@@ -40,11 +53,21 @@ export class AIService {
         Input: "${input}"
         
         Rules:
-        - Extract a clear, concise title
+        - ALWAYS include a title (required field)
+        - Extract a clear, concise title from the input
         - Identify due dates from text like "by Friday", "tomorrow", "next week", etc.
         - Determine priority based on urgency words (urgent, ASAP, important, etc.)
         - Extract relevant tags based on context
         - If no due date is mentioned, omit the dueDate field
+        - If input is unclear, use the input text as the title
+        
+        Example output:
+        {
+          "title": "Buy groceries",
+          "description": "Buy groceries for the week including fruits and vegetables",
+          "priority": "medium",
+          "tags": ["shopping", "weekly"]
+        }
         
         Return only the JSON object, no other text:
       `;
@@ -56,13 +79,21 @@ export class AIService {
       // Clean up the response to extract JSON
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        // Ensure title is always provided
+        if (!parsed.title) {
+          parsed.title = input.length > 50 ? input.substring(0, 50) + '...' : input;
+        }
+        return parsed;
       }
       
-      return { title: input };
+      // If no JSON found, return fallback
+      console.warn('No JSON found in AI response, using fallback');
+      return fallbackTodo;
     } catch (error) {
       console.error('AI parsing error:', error);
-      return { title: input };
+      // Always return fallback with title to prevent validation errors
+      return fallbackTodo;
     }
   }
 

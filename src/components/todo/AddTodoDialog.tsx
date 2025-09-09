@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, CalendarIcon, Sparkles, X } from 'lucide-react';
+import { Plus, CalendarIcon, Sparkles, X, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Todo } from '@/types';
 import { useTodoStore } from '@/store';
+import VoiceInput from '@/components/voice/VoiceInput';
+import BrowserVoiceInput from '@/components/voice/BrowserVoiceInput';
 import toast from 'react-hot-toast';
 
 interface AddTodoDialogProps {
@@ -29,8 +31,11 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [naturalLanguage, setNaturalLanguage] = useState('');
-  const [useAI, setUseAI] = useState(false);
+  const [useAI, setUseAI] = useState(true);
+  const [useVoice, setUseVoice] = useState(false);
+  const [voiceMethod, setVoiceMethod] = useState<'browser' | 'recording'>('browser');
   const [loading, setLoading] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
   const { addTodo } = useTodoStore();
 
@@ -39,10 +44,23 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
     setLoading(true);
 
     try {
+      // Validate input
+      if (useAI) {
+        if (!naturalLanguage || naturalLanguage.trim() === '') {
+          toast.error('Please provide a task description');
+          return;
+        }
+      } else {
+        if (!title || title.trim() === '') {
+          toast.error('Task title is required');
+          return;
+        }
+      }
+
       const todoData = useAI 
-        ? { naturalLanguage }
+        ? { naturalLanguage: naturalLanguage.trim() }
         : {
-            title,
+            title: title.trim(),
             description,
             priority,
             dueDate,
@@ -66,8 +84,12 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
       resetForm();
       setOpen(false);
     } catch (error) {
-      toast.error('Failed to create task');
       console.error('Error creating todo:', error);
+      if (error instanceof Error) {
+        toast.error(error.message || 'Failed to create task');
+      } else {
+        toast.error('Failed to create task');
+      }
     } finally {
       setLoading(false);
     }
@@ -82,6 +104,8 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
     setNewTag('');
     setNaturalLanguage('');
     setUseAI(false);
+    setUseVoice(false);
+    setAudioBlob(null);
   };
 
   const addTag = () => {
@@ -93,6 +117,17 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
 
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleVoiceTranscription = (transcription: string) => {
+    setNaturalLanguage(transcription);
+    setUseAI(true);
+    toast.success('Voice input received!');
+  };
+
+  const handleAudioData = (audioBlob: Blob) => {
+    setAudioBlob(audioBlob);
+    // Optionally store audio for future reference
   };
 
   return (
@@ -129,16 +164,91 @@ export default function AddTodoDialog({ onAdd }: AddTodoDialogProps) {
 
           {useAI ? (
             /* Natural Language Input */
-            <div className="space-y-2">
-              <Label htmlFor="natural-language">Describe your task</Label>
-              <Textarea
-                id="natural-language"
-                placeholder="e.g., 'Finish the quarterly report by Friday at 5 PM with high priority'"
-                value={naturalLanguage}
-                onChange={(e) => setNaturalLanguage(e.target.value)}
-                required
-                className="min-h-[100px]"
-              />
+            <div className="space-y-4">
+              {/* Voice Input Toggle */}
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant={useVoice ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setUseVoice(!useVoice)}
+                  className="flex items-center gap-2"
+                >
+                  <Mic className="h-4 w-4" />
+                  {useVoice ? 'Voice Mode' : 'Use Voice'}
+                </Button>
+                <span className="text-sm text-gray-600">
+                  {useVoice ? 'Speak your task description' : 'Click to enable voice input'}
+                </span>
+              </div>
+
+              {useVoice ? (
+                /* Voice Input Component */
+                <div className="space-y-4">
+                  {/* Voice Method Selection */}
+                  <div className="flex items-center gap-2 text-sm">
+                    <label className="text-gray-600">Voice method:</label>
+                    <Button
+                      type="button"
+                      variant={voiceMethod === 'browser' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setVoiceMethod('browser')}
+                    >
+                      Browser
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={voiceMethod === 'recording' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setVoiceMethod('recording')}
+                    >
+                      Recording
+                    </Button>
+                  </div>
+
+                  {/* Voice Input Component */}
+                  {voiceMethod === 'browser' ? (
+                    <BrowserVoiceInput
+                      onTranscription={handleVoiceTranscription}
+                      disabled={loading}
+                      className="py-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-800"
+                    />
+                  ) : (
+                    <VoiceInput
+                      onTranscription={handleVoiceTranscription}
+                      onAudioData={handleAudioData}
+                      disabled={loading}
+                      className="py-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-800"
+                    />
+                  )}
+                  
+                  {naturalLanguage && (
+                    <div className="space-y-2">
+                      <Label>Transcribed Text (editable)</Label>
+                      <Textarea
+                        value={naturalLanguage}
+                        onChange={(e) => setNaturalLanguage(e.target.value)}
+                        className="min-h-[100px]"
+                        placeholder="Your voice input will appear here..."
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Text Input */
+                <div className="space-y-2">
+                  <Label htmlFor="natural-language">Describe your task</Label>
+                  <Textarea
+                    id="natural-language"
+                    placeholder="e.g., 'Finish the quarterly report by Friday at 5 PM with high priority'"
+                    value={naturalLanguage}
+                    onChange={(e) => setNaturalLanguage(e.target.value)}
+                    required
+                    className="min-h-[100px]"
+                  />
+                </div>
+              )}
+              
               <p className="text-sm text-gray-500">
                 AI will extract the title, priority, due date, and tags from your description.
               </p>

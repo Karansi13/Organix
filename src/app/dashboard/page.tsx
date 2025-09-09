@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import KanbanBoard from '@/components/todo/KanbanBoard';
 import AddTodoDialog from '@/components/todo/AddTodoDialog';
 import ClientOnly from '@/components/ClientOnly';
+import VoiceHistory from '@/components/voice/VoiceHistory';
 import { 
   BarChart3, 
   CheckCircle2, 
@@ -335,6 +336,11 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Voice History */}
+          <ClientOnly fallback={<div className="w-full h-32 bg-gray-200 rounded animate-pulse"></div>}>
+            <VoiceHistory />
+          </ClientOnly>
         </div>
       </div>
     </div>

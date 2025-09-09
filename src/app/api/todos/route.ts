@@ -67,13 +67,31 @@ export async function POST(req: NextRequest) {
 
     if (naturalLanguage) {
       // Use AI to parse natural language input
+      console.log('Processing natural language input:', naturalLanguage);
       const aiParsed = await AIService.parseNaturalLanguageTodo(naturalLanguage);
+      console.log('AI parsed result:', aiParsed);
+      
+      // Ensure we always have a title
+      if (!aiParsed.title) {
+        aiParsed.title = naturalLanguage.length > 50 
+          ? naturalLanguage.substring(0, 50) + '...' 
+          : naturalLanguage;
+      }
+      
       todoData = { ...todoData, ...aiParsed };
       todoData.aiGenerated = true;
     } else {
+      // Validate manual input
+      if (!title || title.trim() === '') {
+        return NextResponse.json(
+          { error: 'Title is required' }, 
+          { status: 400 }
+        );
+      }
+      
       todoData = {
         ...todoData,
-        title,
+        title: title.trim(),
         description,
         dueDate: dueDate ? new Date(dueDate) : undefined,
         priority: priority || 'medium',
