@@ -116,7 +116,7 @@ export default function VoiceHistory({ className }: VoiceHistoryProps) {
                 className="flex-shrink-0 h-8 w-8 p-0"
                 onClick={() => {
                   // Note: In production, you'd implement audio playback
-                  toast.info('Audio playback would be implemented here');
+                  toast('Audio playback would be implemented here');
                 }}
               >
                 {playingId === recording._id ? (
@@ -170,7 +170,7 @@ export default function VoiceHistory({ className }: VoiceHistoryProps) {
                   className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
                   onClick={() => {
                     // In production, implement delete functionality
-                    toast.info('Delete functionality would be implemented here');
+                    toast('Delete functionality would be implemented here');
                   }}
                   title="Delete recording"
                 >
