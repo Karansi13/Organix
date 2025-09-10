@@ -30,15 +30,15 @@ export class AIService {
   }
 
   static async parseNaturalLanguageTodo(input: string): Promise<Partial<Todo>> {
-    try {
-      // Fallback parsing if AI fails
-      const fallbackTodo = {
-        title: input.length > 50 ? input.substring(0, 50) + '...' : input,
-        description: input,
-        priority: 'medium' as const,
-        tags: []
-      };
+    // Fallback parsing if AI fails
+    const fallbackTodo = {
+      title: input.length > 50 ? input.substring(0, 50) + '...' : input,
+      description: input,
+      priority: 'medium' as const,
+      tags: []
+    };
 
+    try {
       if (!process.env.GEMINI_API_KEY) {
         console.warn('No Gemini API key found, using fallback parsing');
         return fallbackTodo;
