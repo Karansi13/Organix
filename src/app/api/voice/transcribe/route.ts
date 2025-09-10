@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
 
     try {
       // Try to use proper transcription service
+      // if (process.env.GEMINI_API_KEY) {
       if (process.env.OPENAI_API_KEY) {
         transcription = await transcribeAudioWithWhisper(audioBuffer);
       } else {
