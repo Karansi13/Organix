@@ -6,10 +6,6 @@ const nextConfig = {
   images: {
     domains: ['images.clerk.dev'],
   },
-  // Only enable static export for production builds
-  output: process.env.NODE_ENV === 'production' && process.env.BUILD_STATIC ? 'export' : undefined,
-  trailingSlash: true,
-  distDir: 'out',
   webpack: (config, { isServer }) => {
     // Handle fabric.js for canvas functionality
     if (!isServer) {
